@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto mt-8">
+    <div class="mb-10 px-4">
+        <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight">Leader Dashboard</h2>
+        <p class="text-slate-500 mt-2">Overseeing the joy of the congregation.</p>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="alerts-container" class="mb-8 px-4">
+        <div class="bg-rose-50 border border-rose-100 p-6 rounded-3xl shadow-sm">
+            <h3 class="flex items-center gap-2 text-rose-600 font-bold text-xl mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                High Priority Alerts
+            </h3>
+            <div class="space-y-4">
+                {% set urgent_entries = entries|selectattr("is_urgent")|list %}
+                {% if urgent_entries %}
+                {% for entry in urgent_entries %}
+                <div class="bg-white p-4 rounded-2xl border border-rose-200 flex justify-between items-center">
+                    <div>
+                        <span class="font-bold text-rose-500">{{ entry.owner.email }}</span>
+                        <p class="text-slate-600 mt-1">"{{ entry.content|truncate(80) }}"</p>
+                    </div>
+                    <span class="text-xs text-slate-400">{{ entry.created_at.strftime('%H:%M') }}</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-rose-400 italic">No urgent crises detected. Praise God!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Entries Table -->
+    <div class="px-4">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                        <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Member</th>
+                        <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Moment</th>
+                        <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Category</th>
+                        <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Sentiment</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for entry in entries %}
+                    <tr class="hover:bg-amber-50/30 transition-colors">
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <img src="{{ entry.owner.avatar_url }}" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-medium">{{ entry.owner.email }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-600">{{ entry.content|truncate(100) }}</td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="px-2 py-1 bg-slate-100 rounded-full text-[10px] font-bold uppercase text-slate-500">
+                                {{ entry.category or 'Pending' }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-0.5">
+                                {% for i in range(1, 6) %}
+                                <div
+                                    class="w-1.5 h-1.5 rounded-full {% if i <= (entry.sentiment_score or 0)/2 %}bg-amber-400{% else %}bg-slate-100{% endif %}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

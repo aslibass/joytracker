@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic-settings
+google-generativeai
+fastapi-sso
+jinja2
+python-multipart
+httpx
+twilio
+python-dotenv
+alembic
