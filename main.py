@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, Request, Form, HTTPException, BackgroundTa
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import Session
 import models, database, auth, ai_service, notifications
 from database import get_db, settings
@@ -12,6 +13,7 @@ from datetime import datetime
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="JoyBucket")
+app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
