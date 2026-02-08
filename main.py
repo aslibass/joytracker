@@ -15,6 +15,11 @@ models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI(title="JoyBucket")
 app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return RedirectResponse(url="/static/icons/icon-192x192.png")
+
 templates = Jinja2Templates(directory="templates")
 
 # Auth Routes
@@ -24,8 +29,6 @@ async def login_google(request: Request):
     redirect_uri = str(request.url_for("auth_callback"))
     if "localhost" not in redirect_uri:
         redirect_uri = redirect_uri.replace("http://", "https://")
-    
-    print(f"DEBUG: Redirecting to {redirect_uri}")
         
     async with auth.google_sso:
         return await auth.google_sso.get_login_redirect(
@@ -34,21 +37,29 @@ async def login_google(request: Request):
 
 @app.get("/auth/callback")
 async def auth_callback(request: Request, db: Session = Depends(get_db)):
-    async with auth.google_sso:
-        user_info = await auth.google_sso.verify_and_process(request)
-    
-    user = await auth.get_or_create_user(db, user_info)
-    
-    response = RedirectResponse(url="/")
-    # Set 1-year session cookie
-    response.set_cookie(
-        key="user_id", 
-        value=str(user.id), 
-        max_age=31536000, # 1 year
-        httponly=True,
-        samesite="lax"
-    )
-    return response
+    print(f"DEBUG: Auth callback started. URL: {request.url}")
+    try:
+        async with auth.google_sso:
+            user_info = await auth.google_sso.verify_and_process(request)
+        print(f"DEBUG: Google verify success. User info: {user_info}")
+        
+        user = await auth.get_or_create_user(db, user_info)
+        print(f"DEBUG: User get_or_create success. User ID: {user.id}")
+        
+        response = RedirectResponse(url="/")
+        response.set_cookie(
+            key="user_id", 
+            value=str(user.id), 
+            max_age=31536000,
+            httponly=True,
+            samesite="lax"
+        )
+        return response
+    except Exception as e:
+        print(f"ERROR in auth_callback: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/logout")
 async def logout():
