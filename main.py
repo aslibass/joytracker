@@ -24,15 +24,17 @@ async def login_google(request: Request):
     redirect_uri = str(request.url_for("auth_callback"))
     if "localhost" not in redirect_uri:
         redirect_uri = redirect_uri.replace("http://", "https://")
+    
+    print(f"DEBUG: Redirecting to {redirect_uri}")
         
-    with auth.google_sso:
+    async with auth.google_sso:
         return await auth.google_sso.get_login_redirect(
             redirect_uri=redirect_uri
         )
 
 @app.get("/auth/callback")
 async def auth_callback(request: Request, db: Session = Depends(get_db)):
-    with auth.google_sso:
+    async with auth.google_sso:
         user_info = await auth.google_sso.verify_and_process(request)
     
     user = await auth.get_or_create_user(db, user_info)

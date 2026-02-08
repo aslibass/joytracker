@@ -11,13 +11,23 @@ google_sso = GoogleSSO(
     allow_insecure_http=True # Set to False in production
 )
 
-async def get_or_create_user(db: Session, user_info: dict) -> models.User:
-    user = db.query(models.User).filter(models.User.google_sub == user_info["id"]).first()
+async def get_or_create_user(db: Session, user_info: any) -> models.User:
+    # Handle both OpenID object and dict for flexibility
+    if hasattr(user_info, "id"):
+        google_id = user_info.id
+        email = user_info.email
+        picture = user_info.picture
+    else:
+        google_id = user_info["id"]
+        email = user_info["email"]
+        picture = user_info.get("picture")
+
+    user = db.query(models.User).filter(models.User.google_sub == google_id).first()
     if not user:
         user = models.User(
-            email=user_info["email"],
-            google_sub=user_info["id"],
-            avatar_url=user_info.get("picture"),
+            email=email,
+            google_sub=google_id,
+            avatar_url=picture,
             is_admin=False # Default
         )
         db.add(user)
