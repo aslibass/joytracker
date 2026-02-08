@@ -3,8 +3,9 @@ uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 pydantic-settings
-google-generativeai
+google-genai
 fastapi-sso
+itsdangerous
 jinja2
 python-multipart
 httpx
