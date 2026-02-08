@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     google_client_id: str
     google_client_secret: str
     gemini_api_key: str
-    smtp_login: str
-    smtp_password: str
-    leader_emails: str
+    smtp_login: str = ""
+    smtp_password: str = ""
+    leader_emails: str = ""
     leader_phones: str = ""
     enable_sms: bool = False
     twilio_account_sid: str = ""
