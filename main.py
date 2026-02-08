@@ -178,5 +178,12 @@ async def log_joy(request: Request, background_tasks: BackgroundTasks, content: 
     # Return HTMX snippet for the new entry
     return templates.TemplateResponse("components/joy_entry_card.html", {"request": request, "entry": new_entry})
 
+@app.get("/entry/{entry_id}/status", response_class=HTMLResponse)
+async def get_entry_status(request: Request, entry_id: int, db: Session = Depends(get_db)):
+    entry = db.query(models.JoyEntry).filter(models.JoyEntry.id == entry_id).first()
+    if not entry:
+        raise HTTPException(status_code=404)
+    return templates.TemplateResponse("components/joy_entry_card.html", {"request": request, "entry": entry})
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=settings.port, reload=True)

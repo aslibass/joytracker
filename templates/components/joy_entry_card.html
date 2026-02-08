@@ -1,4 +1,5 @@
-<div id="entry-{{ entry.id }}"
+<div id="entry-{{ entry.id }}" {% if not entry.category %} hx-get="/entry/{{ entry.id }}/status" hx-trigger="every 2s"
+    hx-swap="outerHTML" {% endif %}
     class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 break-inside-avoid relative hover:shadow-md transition-all duration-300">
     <div class="flex items-center gap-2 mb-4">
         {% if entry.category %}
