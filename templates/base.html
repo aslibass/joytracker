@@ -101,15 +101,15 @@
             </div>
             <form hx-post="/log" hx-target="#joy-feed" hx-swap="afterbegin"
                 hx-on::after-request="document.getElementById('joy-modal').close(); this.reset();">
-                <textarea name="content" rows="4" placeholder="What brought you joy today?"
+                <textarea id="joy-content" name="content" rows="4" placeholder="What brought you joy today?"
                     class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:outline-none transition-all resize-none text-lg dark:text-slate-200"></textarea>
                 <div class="mt-6 flex gap-3">
                     <button type="submit"
                         class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-[0.98]">
                         Save To Bucket
                     </button>
-                    <button type="button"
-                        class="p-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-2xl transition-colors">
+                    <button type="button" id="mic-btn"
+                        class="p-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-2xl transition-all duration-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-500 dark:text-slate-400"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -134,6 +134,60 @@
                 });
             }
         });
+
+        // --- Voice Logging (SpeechToText) Implementation ---
+        const micBtn = document.getElementById('mic-btn');
+        const joyTextarea = document.getElementById('joy-content');
+
+        if (micBtn && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRec();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            let isRecording = false;
+
+            micBtn.addEventListener('click', () => {
+                if (!isRecording) {
+                    recognition.start();
+                } else {
+                    recognition.stop();
+                }
+            });
+
+            recognition.onstart = () => {
+                isRecording = true;
+                micBtn.classList.remove('bg-slate-100', 'dark:bg-slate-800');
+                micBtn.classList.add('bg-rose-500', 'animate-pulse');
+                micBtn.querySelector('svg').classList.replace('text-slate-500', 'text-white');
+                micBtn.querySelector('svg').classList.replace('dark:text-slate-400', 'text-white');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                joyTextarea.value += (joyTextarea.value ? ' ' : '') + transcript;
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                micBtn.classList.add('bg-slate-100', 'dark:bg-slate-800');
+                micBtn.classList.remove('bg-rose-500', 'animate-pulse');
+                micBtn.querySelector('svg').classList.replace('text-white', 'text-slate-500');
+                // Ensure dark mode text color also restores
+                if (document.documentElement.classList.contains('dark')) {
+                    micBtn.querySelector('svg').classList.add('dark:text-slate-400');
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error:", event.error);
+                recognition.stop();
+            };
+        } else if (micBtn) {
+            micBtn.classList.add('opacity-30', 'cursor-not-allowed');
+            micBtn.title = "Speech recognition not supported in this browser.";
+        }
 
         // Theme Toggle Logic
         var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
