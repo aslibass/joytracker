@@ -1,9 +1,6 @@
-const CACHE_NAME = 'joybucket-v1';
 const ASSETS = [
     '/',
-    '/static/manifest.json',
-    'https://cdn.tailwindcss.com',
-    'https://unpkg.com/htmx.org@1.9.10'
+    '/static/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
