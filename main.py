@@ -18,9 +18,14 @@ templates = Jinja2Templates(directory="templates")
 # Auth Routes
 @app.get("/login/google")
 async def login_google(request: Request):
+    # Ensure redirect URI uses https when on production domain
+    redirect_uri = str(request.url_for("auth_callback"))
+    if "localhost" not in redirect_uri:
+        redirect_uri = redirect_uri.replace("http://", "https://")
+        
     with auth.google_sso:
         return await auth.google_sso.get_login_redirect(
-            redirect_uri=str(request.url_for("auth_callback"))
+            redirect_uri=redirect_uri
         )
 
 @app.get("/auth/callback")
