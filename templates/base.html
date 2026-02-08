@@ -81,7 +81,7 @@
     </main>
 
     <!-- FAB for adding joy -->
-    {% if user %}
+    {% if user and request.url.path != "/dashboard" %}
     <button onclick="document.getElementById('joy-modal').showModal()"
         class="fixed bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center shadow-2xl transition-all hover:scale-110 active:scale-95 group z-50">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 group-hover:rotate-90 transition-transform duration-300"
@@ -89,6 +89,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
         </svg>
     </button>
+    {% endif %}
 
     <!-- Modal -->
     <dialog id="joy-modal"
