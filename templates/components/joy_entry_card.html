@@ -1,39 +1,41 @@
 <div id="entry-{{ entry.id }}"
-    class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 break-inside-avoid relative hover:shadow-md transition-shadow">
+    class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 break-inside-avoid relative hover:shadow-md transition-all duration-300">
     <div class="flex items-center gap-2 mb-4">
         {% if entry.category %}
-        <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-widest rounded-full">
+        <span
+            class="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors">
             {{ entry.category }}
         </span>
         {% else %}
         <span
-            class="px-3 py-1 bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-widest rounded-full animate-pulse">
+            class="px-3 py-1 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-widest rounded-full animate-pulse transition-colors">
             Analyzing...
         </span>
         {% endif %}
-        <span class="text-[10px] text-slate-400 font-medium ml-auto">
+        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium ml-auto transition-colors">
             {{ entry.created_at.strftime('%b %d, %Y') }}
         </span>
     </div>
 
-    <p class="text-lg text-slate-800 leading-relaxed mb-4">
+    <p class="text-lg text-slate-800 dark:text-slate-200 leading-relaxed mb-4 transition-colors">
         {{ entry.content }}
     </p>
 
     {% if entry.tags %}
     <div class="flex flex-wrap gap-1.5">
         {% for tag in entry.tags %}
-        <span class="text-xs text-slate-400 font-medium">#{{ tag }}</span>
+        <span class="text-xs text-slate-400 dark:text-slate-500 font-medium transition-colors">#{{ tag }}</span>
         {% endfor %}
     </div>
     {% endif %}
 
     {% if entry.sentiment_score %}
-    <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+    <div
+        class="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800/50 flex items-center justify-between transition-colors">
         <div class="flex gap-0.5">
             {% for i in range(1, 11) %}
             <div
-                class="w-1.5 h-1.5 rounded-full {% if i <= entry.sentiment_score %}bg-amber-400{% else %}bg-slate-100{% endif %}">
+                class="w-1.5 h-1.5 rounded-full transition-colors {% if i <= entry.sentiment_score %}bg-amber-400{% else %}bg-slate-100 dark:bg-slate-800{% endif %}">
             </div>
             {% endfor %}
         </div>
