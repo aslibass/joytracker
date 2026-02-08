@@ -106,3 +106,28 @@ To grant a user admin privileges, update the `is_admin` column in the `users` ta
 UPDATE users SET is_admin = True WHERE email = 'pastor@example.com';
 ```
 Admins can access the dashboard at `/dashboard`.
+
+---
+
+## 🗄️ Database Migrations
+
+JoyBucket uses **Alembic** to manage database schema changes.
+
+### Initial Setup (Already Done)
+The project comes with an initial migration that creates the `users` and `joy_entries` tables.
+
+### Running Migrations
+To bring your database up to date with the latest schema:
+```bash
+alembic upgrade head
+```
+
+### Creating New Migrations
+If you modify `models.py`, generate a new migration script:
+```bash
+alembic revision --autogenerate -m "Describe your changes"
+```
+Then apply it:
+```bash
+alembic upgrade head
+```
