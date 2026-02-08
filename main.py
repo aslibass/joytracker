@@ -94,11 +94,73 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/")
     
     user = db.query(models.User).filter(models.User.id == int(user_id)).first()
-    if not user.is_admin:
+    if not user or not user.is_admin:
         return RedirectResponse(url="/")
     
-    entries = db.query(models.JoyEntry).order_by(models.JoyEntry.created_at.desc()).limit(100).all()
-    return templates.TemplateResponse("admin.html", {"request": request, "user": user, "entries": entries})
+    # Aggregated Stats
+    entries = db.query(models.JoyEntry).order_by(models.JoyEntry.created_at.desc()).all()
+    total_joy = len(entries)
+    
+    # Calculate Average Sentiment
+    scored_entries = [e for e in entries if e.sentiment_score is not None]
+    avg_sentiment = sum(e.sentiment_score for e in scored_entries) / len(scored_entries) if scored_entries else 0
+    
+    # Category Distribution
+    categories = {}
+    for e in entries:
+        cat = e.category or "Pending"
+        categories[cat] = categories.get(cat, 0) + 1
+        
+    # Urgent Count
+    urgent_count = sum(1 for e in entries if e.is_urgent)
+    
+    # Recent Alerts (Top 5)
+    recent_alerts = [e for e in entries if e.is_urgent][:5]
+    
+    # Member-Specific Trends
+    users = db.query(models.User).all()
+    member_stats = []
+    for u in users:
+        # Get sentiment history for this user (last 10 entries)
+        user_entries = [e for e in entries if e.user_id == u.id and e.sentiment_score is not None]
+        user_entries.reverse() # Chronological order for sparkline
+        
+        recent_scores = [e.sentiment_score for e in user_entries][-10:]
+        
+        if not recent_scores:
+            continue
+            
+        current_avg = sum(recent_scores[-3:]) / len(recent_scores[-3:]) if len(recent_scores) >= 3 else sum(recent_scores) / len(recent_scores)
+        prev_avg = sum(recent_scores[-6:-3]) / len(recent_scores[-6:-3]) if len(recent_scores) >= 6 else current_avg
+        
+        trend = "stable"
+        if current_avg > prev_avg + 0.5: trend = "up"
+        elif current_avg < prev_avg - 0.5: trend = "down"
+        
+        member_stats.append({
+            "user": u,
+            "recent_scores": recent_scores,
+            "avg_sentiment": round(current_avg, 1),
+            "trend": trend,
+            "last_active": user_entries[-1].created_at if user_entries else u.created_at
+        })
+
+    # Sort members by health (lowest sentiment first for pastoral priority)
+    member_stats.sort(key=lambda x: x['avg_sentiment'])
+    
+    return templates.TemplateResponse("admin.html", {
+        "request": request, 
+        "user": user, 
+        "entries": entries,
+        "member_stats": member_stats,
+        "stats": {
+            "total_joy": total_joy,
+            "avg_sentiment": round(avg_sentiment, 1),
+            "categories": categories,
+            "urgent_count": urgent_count,
+            "recent_alerts": recent_alerts
+        }
+    })
 
 @app.post("/log", response_class=HTMLResponse)
 async def log_joy(request: Request, background_tasks: BackgroundTasks, content: str = Form(...), db: Session = Depends(get_db)):

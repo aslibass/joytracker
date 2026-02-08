@@ -1,92 +1,298 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto mt-8">
-    <div class="mb-10 px-4">
-        <h2 class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight transition-colors">Leader
-            Dashboard</h2>
-        <p class="text-slate-500 dark:text-slate-400 mt-2 transition-colors">Overseeing the joy of the congregation.</p>
+<div class="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8 font-inter">
+
+    <!-- 1. HEADER SECTION: Minimal & Focused -->
+    <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h2 class="text-4xl font-bold font-outfit text-slate-900 dark:text-white tracking-tight">Leader Dashboard
+            </h2>
+            <p class="text-slate-500 dark:text-slate-400 mt-2 text-lg">Daily Pulse of Church Spiritual Vitality</p>
+        </div>
+        <div class="flex items-center gap-2 text-sm font-medium text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Live Updates Enabled
+        </div>
     </div>
 
-    <!-- Alert Box -->
-    <div id="alerts-container" class="mb-8 px-4">
+    <!-- 2. QUICK STATS STRIP: Force Single Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <!-- Total Joy -->
         <div
-            class="bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/50 p-6 rounded-3xl shadow-sm transition-colors">
-            <h3 class="flex items-center gap-2 text-rose-600 font-bold text-xl mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                High Priority Alerts
-            </h3>
-            <div class="space-y-4">
-                {% set urgent_entries = entries|selectattr("is_urgent")|list %}
-                {% if urgent_entries %}
-                {% for entry in urgent_entries %}
-                <div
-                    class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50 flex justify-between items-center transition-colors">
-                    <div>
-                        <span class="font-bold text-rose-500 dark:text-rose-400">{{ entry.owner.email }}</span>
-                        <p class="text-slate-600 dark:text-slate-300 mt-1">"{{ entry.content|truncate(80) }}"</p>
-                    </div>
-                    <span class="text-xs text-slate-400 dark:text-slate-500">{{ entry.created_at.strftime('%H:%M')
-                        }}</span>
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 rounded-3xl border border-slate-200/50 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
-                {% endfor %}
-                {% else %}
-                <p class="text-rose-400 dark:text-rose-500/70 italic">No urgent crises detected. Praise God!</p>
-                {% endif %}
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total Joy</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+                <h3 class="text-3xl font-black text-slate-900 dark:text-white">{{ stats.total_joy }}</h3>
+                <span class="text-xs text-slate-400">moments</span>
+            </div>
+        </div>
+
+        <!-- Community Sentiment -->
+        <div
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 rounded-3xl border border-slate-200/50 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Sentiment</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+                <h3 class="text-3xl font-black text-slate-900 dark:text-white">{{ stats.avg_sentiment }}</h3>
+                <span class="text-xs text-slate-400">/10</span>
+            </div>
+        </div>
+
+        <!-- Active Themes -->
+        <div
+            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 rounded-3xl border border-slate-200/50 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 7h.01M7 11h.01M7 15h.01M11 7h.01M11 11h.01M11 15h.01M15 7h.01M15 11h.01M15 15h.01" />
+                    </svg>
+                </div>
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Themes</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+                <h3 class="text-3xl font-black text-slate-900 dark:text-white">{{ stats.categories|length }}</h3>
+                <span class="text-xs text-slate-400">active</span>
+            </div>
+        </div>
+
+        <!-- Urgent Alerts -->
+        <div
+            class="{% if stats.urgent_count > 0 %}bg-rose-50 dark:bg-rose-900/20 border-rose-200{% else %}bg-white/80 dark:bg-slate-900/80{% endif %} backdrop-blur-md p-5 rounded-3xl border border-slate-200/50 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div
+                    class="w-8 h-8 rounded-xl {% if stats.urgent_count > 0 %}bg-rose-500 animate-pulse{% else %}bg-slate-50 dark:bg-slate-800{% endif %} flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4 {% if stats.urgent_count > 0 %}text-white{% else %}text-slate-400{% endif %}"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <span
+                    class="text-[11px] font-bold {% if stats.urgent_count > 0 %}text-rose-600{% else %}text-slate-400{% endif %} uppercase tracking-widest">Urgent</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+                <h3
+                    class="text-3xl font-black {% if stats.urgent_count > 0 %}text-rose-600{% else %}text-slate-900 dark:text-white{% endif %}">
+                    {{ stats.urgent_count }}</h3>
+                <span
+                    class="text-xs {% if stats.urgent_count > 0 %}text-rose-400{% else %}text-slate-400{% endif %}">needs
+                    attention</span>
             </div>
         </div>
     </div>
 
-    <!-- Recent Entries Table -->
-    <div class="px-4">
+    <!-- 3. MAIN DASHBOARD CONTENT: 3-Column Split -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+
+        <!-- Column 1: Spiritual Themes -->
         <div
-            class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
+            class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm h-full">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-lg font-bold font-outfit text-slate-900 dark:text-white">Themes</h3>
+                <div
+                    class="text-[9px] bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-full text-slate-400 font-black uppercase tracking-widest">
+                    Distribution</div>
+            </div>
+            <div class="space-y-4">
+                {% set max_count = stats.categories.values()|max if stats.categories else 1 %}
+                {% for cat, count in stats.categories.items()|sort(attribute='1', reverse=True) %}
+                <div class="group cursor-default">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ cat }}</span>
+                        <span class="text-[10px] font-black text-slate-400">{{ count }}</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-slate-50 dark:bg-slate-800/50 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all duration-1000 group-hover:brightness-110"
+                            style="width: {{ (count / max_count) * 100 }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Column 2: Tips & Insights -->
+        <div class="space-y-6 flex flex-col h-full">
+            <!-- Insight Card -->
+            <div
+                class="bg-indigo-600 dark:bg-indigo-900/50 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden flex-1 flex flex-col justify-center min-h-[160px]">
+                <div class="relative z-10">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Pastoral Insight
+                    </div>
+                    <p class="text-indigo-50 text-sm font-medium leading-relaxed italic">
+                        {% if stats.categories.Nature > stats.categories.Faith %}
+                        "Community joy is peaking in **Nature**. Consider a church-wide outdoor devotional."
+                        {% else %}
+                        "**{{ stats.categories|first }}** is moving through the community. Season of growth."
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pro Tip Card -->
+            <div
+                class="bg-slate-900 dark:bg-slate-800 p-6 rounded-[2rem] text-white border border-slate-800 dark:border-slate-700 flex-1 flex flex-col justify-center min-h-[160px]">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 bg-amber-400 text-slate-900 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 w-fit">
+                    Pro-Tip
+                </div>
+                <p class="text-slate-300 text-xs font-medium leading-relaxed">
+                    Watch for shifts in sentiment averages to identify burnout <span class="text-amber-400">weeks
+                        before</span> it happens.
+                </p>
+            </div>
+        </div>
+
+        <!-- Column 3: Care Queue (Urgent Crisis) -->
+        <div class="h-full">
+            {% if stats.recent_alerts %}
+            <div
+                class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm h-full flex flex-col">
+                <div
+                    class="p-6 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center bg-rose-50/10">
+                    <h3 class="text-lg font-bold font-outfit text-slate-900 dark:text-white">Crisis</h3>
+                    <div
+                        class="px-2.5 py-1 bg-rose-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest">
+                        Urgent</div>
+                </div>
+                <div class="divide-y divide-slate-50 dark:divide-slate-800 overflow-y-auto max-h-[350px]">
+                    {% for alert in stats.recent_alerts %}
+                    <div class="p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <img src="{{ alert.owner.avatar_url }}" class="w-8 h-8 rounded-2xl">
+                            <p class="font-bold text-[11px] text-slate-900 dark:text-white truncate">{{
+                                alert.owner.email }}</p>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-[11px] italic mb-2 line-clamp-2">"{{
+                            alert.content }}"</p>
+                        <div class="flex items-center gap-2 text-rose-500">
+                            <span class="text-[9px] font-black uppercase tracking-widest">{{ alert.pastor_summary
+                                }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div
+                class="bg-emerald-50/30 dark:bg-emerald-900/10 border border-emerald-100/50 dark:border-emerald-900/20 p-8 rounded-[2.5rem] text-center h-full flex flex-col items-center justify-center">
+                <div
+                    class="w-10 h-10 bg-white dark:bg-slate-900 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-500" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Clear</h4>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 4. BOTTOM SECTION: Member Spiritual Trends -->
+    <div
+        class="mt-12 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm mb-20">
+        <div class="p-8 border-b border-slate-50 dark:border-slate-800">
+            <h3 class="text-xl font-bold font-outfit text-slate-900 dark:text-white">Member Soul Trends</h3>
+            <p class="text-slate-500 text-xs mt-1">Long-term spiritual health monitoring.</p>
+        </div>
+        <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead
-                    class="bg-slate-50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 transition-colors">
+                    class="bg-slate-50 dark:bg-slate-950/30 border-b border-slate-100 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-400">
                     <tr>
-                        <th
-                            class="px-6 py-4 text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                            Member</th>
-                        <th
-                            class="px-6 py-4 text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                            Moment</th>
-                        <th
-                            class="px-6 py-4 text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                            Category</th>
-                        <th
-                            class="px-6 py-4 text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                            Sentiment</th>
+                        <th class="px-8 py-5">Member</th>
+                        <th class="px-8 py-5">Soul Trend (Last 10)</th>
+                        <th class="px-8 py-5">Current Vibe</th>
+                        <th class="px-8 py-5">Status</th>
+                        <th class="px-8 py-5 text-right">Last Pulse</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50 dark:divide-slate-800 transition-colors">
-                    {% for entry in entries %}
-                    <tr class="hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-colors">
-                        <td class="px-6 py-4 flex items-center gap-3">
-                            <img src="{{ entry.owner.avatar_url }}"
-                                class="w-8 h-8 rounded-full border dark:border-slate-700">
-                            <span class="text-sm font-medium dark:text-slate-200">{{ entry.owner.email }}</span>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                    {% for m in member_stats %}
+                    <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors group">
+                        <!-- email & avatar -->
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-3">
+                                <img src="{{ m.user.avatar_url }}"
+                                    class="w-8 h-8 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-none mb-1">{{
+                                        m.user.email.split('@')[0] }}</p>
+                                    <p class="text-[9px] text-slate-400">{{ m.user.email }}</p>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ entry.content|truncate(100)
-                            }}</td>
-                        <td class="px-6 py-4">
-                            <span
-                                class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 transition-colors">
-                                {{ entry.category or 'Pending' }}
+                        <!-- sparkline -->
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-24 h-8">
+                                    <svg class="w-full h-full overflow-visible" viewBox="0 0 100 30"
+                                        preserveAspectRatio="none">
+                                        <path
+                                            d="M {% for score in m.recent_scores %}{% set x = (loop.index0 * (100 / (m.recent_scores|length - 1 if m.recent_scores|length > 1 else 1))) %}{% set y = 30 - (score * 2.5) %}{{ x }},{{ y }} {% if not loop.last %}L {% endif %}{% endfor %}"
+                                            fill="none"
+                                            stroke="{% if m.trend == 'up' %}#10b981{% elif m.trend == 'down' %}#ef4444{% else %}#f59e0b{% endif %}"
+                                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                            class="drop-shadow-sm" />
+                                    </svg>
+                                </div>
+                                <span
+                                    class="text-[10px] font-black {% if m.trend == 'up' %}text-emerald-500{% elif m.trend == 'down' %}text-rose-500{% else %}text-amber-500{% endif %}">
+                                    {% if m.trend == 'up' %}↑{% elif m.trend == 'down' %}↓{% else %}→{% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <!-- Current Mood -->
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-black text-slate-900 dark:text-white">{{ m.avg_sentiment
+                                    }}</span>
+                                <div class="w-12 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full {% if m.avg_sentiment > 8 %}bg-emerald-500{% elif m.avg_sentiment < 4 %}bg-rose-500{% else %}bg-amber-400{% endif %}"
+                                        style="width: {{ m.avg_sentiment * 10 }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <!-- Status Badge -->
+                        <td class="px-8 py-6">
+                            <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest 
+                                {% if m.trend == 'up' %}bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20
+                                {% elif m.trend == 'down' %}bg-rose-50 text-rose-600 dark:bg-rose-900/20
+                                {% else %}bg-amber-50 text-amber-600 dark:bg-amber-900/20{% endif %}">
+                                {% if m.trend == 'up' %}Thriving{% elif m.trend == 'down' %}Struggling{% else %}Steady{%
+                                endif %}
                             </span>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex gap-0.5">
-                                {% for i in range(1, 6) %}
-                                <div
-                                    class="w-1.5 h-1.5 rounded-full transition-colors {% if i <= (entry.sentiment_score or 0)/2 %}bg-amber-400{% else %}bg-slate-100 dark:bg-slate-800{% endif %}">
-                                </div>
-                                {% endfor %}
-                            </div>
+                        <td class="px-8 py-6 text-right text-[10px] text-slate-400 font-medium">
+                            {{ m.last_active.strftime('%b %d, %H:%M') }}
                         </td>
                     </tr>
                     {% endfor %}

@@ -8,12 +8,12 @@ JoyBucket is a "friction-free" Progressive Web App (PWA) designed for the Awesom
 
 ## 🌟 Key Features
 
-- **Instant Joy Logging**: A simple, fast interface to capture moments of gratitude.
-- **AI-Powered Analysis**: Uses Gemini 1.5 Flash to auto-tag entries, score sentiment, and detect crises.
-- **Crisis Alert System**: Automatically notifies church leaders via Email (Brevo) and SMS (Twilio) if an urgent entry is detected.
-- **Admin Dashboard**: A secure view for pastors to oversee recent entries and high-priority alerts.
-- **Progressive Web App (PWA)**: Installable on any mobile device for a native-app feel without the app store.
-- **Golden Hour Aesthetic**: A warm, premium design using Tailwind CSS.
+- **Pastoral Command Center**: A professional, high-density 3-column dashboard for rapid community oversight.
+- **Member Soul Trends**: Track individual spiritual health history with custom SVG **Sparklines**.
+- **Soul Trajectory Tracking**: Automatically identifies members who are *Thriving*, *Steady*, or *Struggling*.
+- **AI-Powered Analysis**: Deep sentiment analysis and crisis detection via Gemini 2.0 Flash.
+- **Crisis Alert System**: Real-time notifications via Email and SMS for urgent pastoral needs.
+- **PWA Ready**: Installable "Golden Hour" themed interface for friction-free joy logging.
 
 ## 🛠️ Tech Stack
 
