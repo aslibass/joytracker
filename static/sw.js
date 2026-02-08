@@ -1,6 +1,7 @@
 const ASSETS = [
     '/',
-    '/static/manifest.json'
+    '/static/manifest.json',
+    '/static/js/htmx.min.js'
 ];
 
 self.addEventListener('install', (event) => {
