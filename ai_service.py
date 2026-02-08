@@ -1,4 +1,5 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from database import settings
 import json
 from typing import List, Optional
@@ -13,8 +14,7 @@ class JoyAnalysis(BaseModel):
     pastor_summary: str
 
 def analyze_joy_entry(content: str) -> Optional[JoyAnalysis]:
-    genai.configure(api_key=settings.gemini_api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    client = genai.Client(api_key=settings.gemini_api_key)
     
     prompt = f"""
     Analyze the following joy entry for a church community app.
@@ -30,14 +30,17 @@ def analyze_joy_entry(content: str) -> Optional[JoyAnalysis]:
     """
     
     try:
-        response = model.generate_content(
-            prompt,
-            generation_config={
-                "response_mime_type": "application/json",
-                "response_schema": JoyAnalysis
-            }
+        response = client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type='application/json',
+                response_schema=JoyAnalysis,
+            ),
         )
-        return JoyAnalysis.model_validate_json(response.text)
+        return response.parsed
     except Exception as e:
         print(f"AI Analysis Error: {e}")
+        import traceback
+        traceback.print_exc()
         return None
