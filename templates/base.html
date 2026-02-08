@@ -5,33 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JoyBucket - Log Your Joy</title>
-    <!-- Tailwind CSS (CDN for simplicity) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Compiled Tailwind CSS -->
+    <link rel="stylesheet" href="/static/css/output.css">
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <!-- Google Fonts: Inter & Outfit -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        h1,
-        h2,
-        h3 {
-            font-family: 'Outfit', sans-serif;
-        }
-
-        .golden-hour {
-            background: linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%);
-        }
-
-        .dark .golden-hour {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-        }
-    </style>
     <script>
         // On page load or when changing themes, best to add inline in `head` to avoid FOUC
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

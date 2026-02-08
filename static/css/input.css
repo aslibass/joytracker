@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3 {
+        font-family: 'Outfit', sans-serif;
+    }
+}
+
+@layer components {
+    .glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .dark .glass {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .golden-hour {
+        background: linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%);
+    }
+
+    .dark .golden-hour {
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    }
+}

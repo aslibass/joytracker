@@ -1,0 +1,10 @@
+{
+    "name": "joytracker",
+    "version": "1.0.0",
+    "description": "Log your daily moments of joy.",
+    "main": "main.py",
+    "scripts": {
+        "build:css": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --minify",
+        "watch:css": "npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch"
+    }
+}
