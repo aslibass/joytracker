@@ -23,30 +23,18 @@ async def favicon():
 templates = Jinja2Templates(directory="templates")
 
 # Auth Routes
-@app.get("/login/google")
-async def login_google(request: Request):
-    # Ensure redirect URI uses https when on production domain
-    redirect_uri = str(request.url_for("auth_callback"))
-    if "localhost" not in redirect_uri:
-        redirect_uri = redirect_uri.replace("http://", "https://")
-        
-    async with auth.google_sso:
-        return await auth.google_sso.get_login_redirect(
-            redirect_uri=redirect_uri
-        )
-
-@app.get("/auth/callback")
-async def auth_callback(request: Request, db: Session = Depends(get_db)):
-    print(f"DEBUG: Auth callback started. URL: {request.url}")
+@app.post("/auth/google")
+async def auth_google(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
+    token = data.get("token")
+    if not token:
+        raise HTTPException(status_code=400, detail="Token missing")
+    
     try:
-        async with auth.google_sso:
-            user_info = await auth.google_sso.verify_and_process(request)
-        print(f"DEBUG: Google verify success. User info: {user_info}")
-        
+        user_info = auth.verify_google_id_token(token)
         user = await auth.get_or_create_user(db, user_info)
-        print(f"DEBUG: User get_or_create success. User ID: {user.id}")
         
-        response = RedirectResponse(url="/")
+        response = RedirectResponse(url="/", status_code=200)
         response.set_cookie(
             key="user_id", 
             value=str(user.id), 
@@ -56,10 +44,8 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
         )
         return response
     except Exception as e:
-        print(f"ERROR in auth_callback: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"ERROR in auth_google: {str(e)}")
+        raise HTTPException(status_code=401, detail="Authentication failed")
 
 @app.get("/logout")
 async def logout():
@@ -92,7 +78,10 @@ async def home(request: Request, db: Session = Depends(get_db)):
     # Check for session cookie (Placeholder logic)
     user_id = request.cookies.get("user_id")
     if not user_id:
-        return templates.TemplateResponse("index.html", {"request": request})
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "google_client_id": settings.google_client_id
+        })
     
     user = db.query(models.User).filter(models.User.id == int(user_id)).first()
     entries = db.query(models.JoyEntry).filter(models.JoyEntry.user_id == user.id).order_by(models.JoyEntry.created_at.desc()).all()
