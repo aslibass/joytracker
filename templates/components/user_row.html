@@ -1,0 +1,59 @@
+<tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/20 transition-colors group" id="user-row-{{ u.id }}">
+    <!-- Avatar & Name -->
+    <td class="px-8 py-6">
+        <div class="flex items-center gap-3">
+            <img src="{{ u.avatar_url }}" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div>
+                <p class="text-sm font-bold text-slate-700 dark:text-slate-200 leading-none">
+                    {{ u.email.split('@')[0] }}
+                </p>
+            </div>
+        </div>
+    </td>
+    <!-- Email -->
+    <td class="px-8 py-6">
+        <p class="text-xs text-slate-600 dark:text-slate-400">{{ u.email }}</p>
+    </td>
+    <!-- Joined Date -->
+    <td class="px-8 py-6">
+        <p class="text-xs text-slate-500 dark:text-slate-400">{{ u.created_at.strftime('%b %d, %Y') }}</p>
+    </td>
+    <!-- Admin Status Badge -->
+    <td class="px-8 py-6">
+        {% if u.is_admin %}
+        <span
+            class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 dark:bg-amber-900/20">
+            Admin
+        </span>
+        {% else %}
+        <span
+            class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-50 text-slate-500 dark:bg-slate-800">
+            Member
+        </span>
+        {% endif %}
+    </td>
+    <!-- Toggle Button -->
+    <td class="px-8 py-6 text-right">
+        <button hx-post="/admin/users/{{ u.id }}/toggle-admin" hx-target="#user-row-{{ u.id }}" hx-swap="outerHTML"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all
+                {% if u.is_admin %}
+                bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/30
+                {% else %}
+                bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30
+                {% endif %}">
+            {% if u.is_admin %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+            Demote
+            {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+            Promote
+            {% endif %}
+        </button>
+    </td>
+</tr>

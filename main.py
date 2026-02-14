@@ -185,5 +185,43 @@ async def get_entry_status(request: Request, entry_id: int, db: Session = Depend
         raise HTTPException(status_code=404)
     return templates.TemplateResponse("components/joy_entry_card.html", {"request": request, "entry": entry})
 
+# Helper function to get current admin user
+def get_current_admin_user(request: Request, db: Session = Depends(get_db)):
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
+    if not user or not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    return user
+
+@app.get("/admin/users", response_class=HTMLResponse)
+async def admin_users(request: Request, db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin_user)):
+    users = db.query(models.User).order_by(models.User.created_at.desc()).all()
+    return templates.TemplateResponse("admin_users.html", {
+        "request": request,
+        "user": admin,
+        "users": users
+    })
+
+@app.post("/admin/users/{user_id}/toggle-admin", response_class=HTMLResponse)
+async def toggle_admin(request: Request, user_id: int, db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin_user)):
+    target_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Toggle admin status
+    target_user.is_admin = not target_user.is_admin
+    db.commit()
+    db.refresh(target_user)
+    
+    # Return updated user row component
+    return templates.TemplateResponse("components/user_row.html", {
+        "request": request,
+        "u": target_user
+    })
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=settings.port, reload=True)
