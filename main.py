@@ -85,14 +85,13 @@ async def home(request: Request, db: Session = Depends(get_db)):
     # Check for session cookie (Placeholder logic)
     user_id = request.cookies.get("user_id")
     if not user_id:
-        return templates.TemplateResponse("index.html", context={
-            "request": request,
+        return templates.TemplateResponse(request, "index.html", {
             "google_client_id": settings.google_client_id
         })
     
     user = db.query(models.User).filter(models.User.id == int(user_id)).first()
     entries = db.query(models.JoyEntry).filter(models.JoyEntry.user_id == user.id).order_by(models.JoyEntry.created_at.desc()).all()
-    return templates.TemplateResponse("feed.html", context={"request": request, "user": user, "entries": entries})
+    return templates.TemplateResponse(request, "feed.html", {"user": user, "entries": entries})
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request, db: Session = Depends(get_db)):
@@ -155,9 +154,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     # Sort members by health (lowest sentiment first for pastoral priority)
     member_stats.sort(key=lambda x: x['avg_sentiment'])
     
-    return templates.TemplateResponse("admin.html", context={
-        "request": request, 
-        "user": user, 
+    return templates.TemplateResponse(request, "admin.html", {
+        "user": user,
         "entries": entries,
         "member_stats": member_stats,
         "stats": {
@@ -183,14 +181,14 @@ async def log_joy(request: Request, background_tasks: BackgroundTasks, content: 
     background_tasks.add_task(process_joy_entry, new_entry.id, db)
     
     # Return HTMX snippet for the new entry
-    return templates.TemplateResponse("components/joy_entry_card.html", context={"request": request, "entry": new_entry})
+    return templates.TemplateResponse(request, "components/joy_entry_card.html", {"entry": new_entry})
 
 @app.get("/entry/{entry_id}/status", response_class=HTMLResponse)
 async def get_entry_status(request: Request, entry_id: int, db: Session = Depends(get_db)):
     entry = db.query(models.JoyEntry).filter(models.JoyEntry.id == entry_id).first()
     if not entry:
         raise HTTPException(status_code=404)
-    return templates.TemplateResponse("components/joy_entry_card.html", context={"request": request, "entry": entry})
+    return templates.TemplateResponse(request, "components/joy_entry_card.html", {"entry": entry})
 
 # Helper function to get current admin user
 def get_current_admin_user(request: Request, db: Session = Depends(get_db)):
@@ -207,8 +205,7 @@ def get_current_admin_user(request: Request, db: Session = Depends(get_db)):
 @app.get("/admin/users", response_class=HTMLResponse)
 async def admin_users(request: Request, db: Session = Depends(get_db), admin: models.User = Depends(get_current_admin_user)):
     users = db.query(models.User).order_by(models.User.created_at.desc()).all()
-    return templates.TemplateResponse("admin_users.html", context={
-        "request": request,
+    return templates.TemplateResponse(request, "admin_users.html", {
         "user": admin,
         "users": users
     })
@@ -225,8 +222,7 @@ async def toggle_admin(request: Request, user_id: int, db: Session = Depends(get
     db.refresh(target_user)
     
     # Return updated user row component
-    return templates.TemplateResponse("components/user_row.html", context={
-        "request": request,
+    return templates.TemplateResponse(request, "components/user_row.html", {
         "u": target_user
     })
 
