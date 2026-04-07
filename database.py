@@ -26,7 +26,11 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-engine = create_engine(settings.database_url)
+engine = create_engine(
+    settings.database_url,
+    pool_pre_ping=True,   # Test connections before use; transparently reconnects if dropped
+    pool_recycle=300,     # Recycle connections every 5 min to avoid server-side SSL timeouts
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
