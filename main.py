@@ -61,24 +61,29 @@ async def logout():
     return response
 
 # Background Task for AI Analysis
-def process_joy_entry(entry_id: int, db: Session):
-    entry = db.query(models.JoyEntry).filter(models.JoyEntry.id == entry_id).first()
-    if not entry:
-        return
-    
-    analysis = ai_service.analyze_joy_entry(entry.content)
-    if analysis:
-        entry.category = analysis.category
-        entry.sentiment_score = analysis.sentiment_score
-        entry.is_urgent = analysis.is_urgent
-        entry.tags = analysis.tags
-        entry.pastor_summary = analysis.pastor_summary
-        db.commit()
+def process_joy_entry(entry_id: int):
+    # Must use its own session — the request session is closed before this task runs
+    db = database.SessionLocal()
+    try:
+        entry = db.query(models.JoyEntry).filter(models.JoyEntry.id == entry_id).first()
+        if not entry:
+            return
         
-        if entry.is_urgent:
-            user = db.query(models.User).filter(models.User.id == entry.user_id).first()
-            notifications.send_crisis_email(user.email, entry.content)
-            notifications.send_crisis_sms(user.email)
+        analysis = ai_service.analyze_joy_entry(entry.content)
+        if analysis:
+            entry.category = analysis.category
+            entry.sentiment_score = analysis.sentiment_score
+            entry.is_urgent = analysis.is_urgent
+            entry.tags = analysis.tags
+            entry.pastor_summary = analysis.pastor_summary
+            db.commit()
+            
+            if entry.is_urgent:
+                user = db.query(models.User).filter(models.User.id == entry.user_id).first()
+                notifications.send_crisis_email(user.email, entry.content)
+                notifications.send_crisis_sms(user.email)
+    finally:
+        db.close()
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
@@ -178,7 +183,7 @@ async def log_joy(request: Request, background_tasks: BackgroundTasks, content: 
     db.commit()
     db.refresh(new_entry)
     
-    background_tasks.add_task(process_joy_entry, new_entry.id, db)
+    background_tasks.add_task(process_joy_entry, new_entry.id)
     
     # Return HTMX snippet for the new entry
     return templates.TemplateResponse(request, "components/joy_entry_card.html", {"entry": new_entry})
