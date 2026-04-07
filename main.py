@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, Request, Form, HTTPException, BackgroundTasks
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
@@ -8,6 +8,7 @@ import models, database, auth, ai_service, notifications
 from database import get_db, settings
 import uvicorn
 from datetime import datetime
+import traceback
 
 # Initialize Database
 models.Base.metadata.create_all(bind=database.engine)
@@ -15,6 +16,12 @@ models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI(title="JoyBucket")
 app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    tb = traceback.format_exc()
+    print(f"UNHANDLED EXCEPTION on {request.url}:\n{tb}")
+    return JSONResponse(status_code=500, content={"detail": str(exc), "traceback": tb})
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():

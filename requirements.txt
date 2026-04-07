@@ -4,6 +4,7 @@ sqlalchemy
 psycopg2-binary
 pydantic-settings
 google-genai
+google-auth
 fastapi-sso
 itsdangerous
 jinja2
